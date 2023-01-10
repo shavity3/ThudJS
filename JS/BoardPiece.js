@@ -6,11 +6,30 @@ export class BoardPieceClass
     {
         this.cooridnateX=cooridnateX;
         this.cooridnateY=cooridnateY;
-        this.isSelectable=false;
     }
 
     toString()
     {
         return "";
+    }
+
+    isValidMove(newXCord,newYCord,board)
+    {
+        return false;
+    }
+
+    move(newXCord,newYCord,board)
+    {
+        return 0;
+    }
+
+    static staticClassName()
+    {
+        return "BoardPieceClass";
+    }
+
+    className()
+    {
+        return "BoardPieceClass";
     }
 }

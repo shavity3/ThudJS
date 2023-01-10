@@ -3,9 +3,7 @@
 import { DwarfPieceClass } from './DwarfPiece.js';
 import { TrollPieceClass } from './TrollPiece.js';
 import { ThudStonePieceClass } from './ThudStonePiece.js';
-
-export const SIDE_LENGTH = 15;
-const REMOVAL_LENGTH=5;
+import { SIDE_LENGTH,REMOVAL_LENGTH,TROLL_BASE_VALUE,DWARF_BASE_VALUE } from './BoardDefinitionClass.js';
 
 //the board is defined as a square that has a triangle at the length and height of REMOVAL_LENGTH removed from each corner
 export class BoardClass
@@ -13,15 +11,18 @@ export class BoardClass
     //this class contains the board as a matrix array and the thudstone object as a quick reference to where the thud stone sits
     constructor()
     {
-        this.board=this.createBoardObj();
-        this.thudStone=this.createThudStone();
+        this.board=this.#createBoardObj();
+        this.thudStone=this.#createThudStone();
 
-        this.repopulateBoardWithTrolls();
-        this.repopulateBoardWithDwarves();
+        this.totalDwarfPoints=0;
+        this.totalTrollPoints=0;
+
+        this.#repopulateBoardWithTrolls();
+        this.#repopulateBoardWithDwarves();
     }
 
 
-    createBoardObj()
+    #createBoardObj()
     {
         let thudBoard = [];
         let boardRow;
@@ -39,7 +40,7 @@ export class BoardClass
     }
 
     //create thud stone object in the board and return it
-    createThudStone()
+    #createThudStone()
     {
         //the thudstone is in the middle of the board
         let midRow = Math.floor(SIDE_LENGTH/2);
@@ -52,8 +53,9 @@ export class BoardClass
     }
 
     //all trolls starting location should be surrounding the Thud stone
-    repopulateBoardWithTrolls()
+    #repopulateBoardWithTrolls()
     {
+        let numberOfTrolls=0;
         let thudStoneCordX=this.thudStone.cooridnateX;
         let thudStoneCordY=this.thudStone.cooridnateY;
         for(let rowRunner=thudStoneCordX-1;rowRunner<=thudStoneCordX+1;rowRunner++)
@@ -64,16 +66,17 @@ export class BoardClass
                 if(columnRunner!=thudStoneCordY || rowRunner !=thudStoneCordX)
                 {
                     this.board[rowRunner][columnRunner] = new TrollPieceClass(rowRunner,columnRunner);
+                    numberOfTrolls++;
                 }
             }
         }
-        //thudBoard[middleRow-1][middleColumn-1].value = new TrollPieceClass(middleRow-1,middleColumn-1);
     }
 
     //set all dwarves starting locations at the edge of the cut off triangles
     //plus 8 more to create point parity
-    repopulateBoardWithDwarves()
+    #repopulateBoardWithDwarves()
     {
+        let numberofDwarves=0;
         let absDistance;
         for(let rowRunner=0;rowRunner<SIDE_LENGTH;rowRunner++)
         {
@@ -84,17 +87,19 @@ export class BoardClass
                 if(absDistance==SIDE_LENGTH-REMOVAL_LENGTH-1)
                 {
                     this.board[rowRunner][columnRunner]=new DwarfPieceClass(rowRunner,columnRunner);
+                    numberofDwarves++;
                 }
                 //else if the distance is 8 and at the edge of the array
                 else if(absDistance==SIDE_LENGTH-REMOVAL_LENGTH-2 && (rowRunner==0 || rowRunner == (SIDE_LENGTH-1) || columnRunner == 0 || columnRunner == (SIDE_LENGTH-1) ))
                 {
                     this.board[rowRunner][columnRunner]=new DwarfPieceClass(rowRunner,columnRunner);
+                    numberofDwarves++
                 }
             }
-
         }
     }
 
+    //bool function, returns false if the location is out of bounds for the board
     isValidLocation(xCoordinate,yCoordinate)
     {
         //if the location is outside the bound of the array
@@ -113,5 +118,89 @@ export class BoardClass
             return true;
         }
 
+    }
+
+    hasMovablePiece(xCoordinate,yCoordinate)
+    {
+        if(this.board[xCoordinate][yCoordinate]=== undefined || this.board[xCoordinate][yCoordinate] === "")
+        {
+            return false;
+        }
+        else
+        {
+            let boardPiece=this.board[xCoordinate][yCoordinate];
+            //thud stones can't be moved
+            if(boardPiece.className() === ThudStonePieceClass.staticClassName())
+            {
+                return false;
+            }
+            //else
+            return true;
+        }
+    }
+
+    #isValidMove(oldLocationX,oldLocationY,newLocationX,newLocationY)
+    {
+        let boardPiece;
+        if(!this.isValidLocation(newLocationX,newLocationY))
+        {
+            return false;
+        }
+        //check if new location is already occupied by an item
+        else 
+        {
+            boardPiece=this.board[oldLocationX][oldLocationY];
+            //if this is a troll piece
+            if(boardPiece.className()===TrollPieceClass.staticClassName())
+            {
+                return boardPiece.isValidMove(newLocationX,newLocationY,this.board);
+            }
+            //TODO calculate if move is valid according to piece logic
+            else if(!(this.board[newLocationX][newLocationY]=== undefined || this.board[newLocationX][newLocationY] === ""))
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+    }
+
+    #move(oldLocationX,oldLocationY,newLocationX,newLocationY)
+    {
+        /*
+        this.board[newLocationX][newLocationY]=this.board[oldLocationX][oldLocationY];
+        this.board[newLocationX][newLocationY].cooridnateX=newLocationX;
+        this.board[newLocationX][newLocationY].cooridnateY=newLocationY;
+        this.board[oldLocationX][oldLocationY]="";
+        */
+
+        let boardPiece=this.board[oldLocationX][oldLocationY];
+        if(boardPiece.className() == TrollPieceClass.staticClassName())
+        {
+            //move the piece and add the points of the captured item to the score
+            this.totalTrollPoints+=boardPiece.move(newLocationX,newLocationY,this.board)*DWARF_BASE_VALUE;
+        }
+        else if(boardPiece.className() == DwarfPieceClass.staticClassName())
+        {
+            this.board[newLocationX][newLocationY]=this.board[oldLocationX][oldLocationY];
+            this.board[newLocationX][newLocationY].cooridnateX=newLocationX;
+            this.board[newLocationX][newLocationY].cooridnateY=newLocationY;
+            this.board[oldLocationX][oldLocationY]="";
+        }
+    }
+
+    tryMove(oldLocationX,oldLocationY,newLocationX,newLocationY)
+    {
+        if(!this.#isValidMove(oldLocationX,oldLocationY,newLocationX,newLocationY))
+        {
+            return false;
+        }
+        else
+        {
+            this.#move(oldLocationX,oldLocationY,newLocationX,newLocationY);
+            return true;
+        }
     }
 }

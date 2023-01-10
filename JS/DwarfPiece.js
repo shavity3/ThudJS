@@ -7,11 +7,20 @@ export class DwarfPieceClass extends BoardPieceClass
     constructor(cooridnateX,cooridnateY)
     {
         super(cooridnateX,cooridnateY)
-        this.isSelectable=true;
     }
-    
+
     toString()
     {
         return "D";
+    }
+
+    static staticClassName()
+    {
+        return "DwarfPieceClass";
+    }
+
+    className()
+    {
+        return "DwarfPieceClass";
     }
 }
