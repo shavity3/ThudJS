@@ -196,16 +196,25 @@ export class TrollPieceClass extends BoardPieceClass
                     //the piece encountered a non empty space and thus the move is illegal
                     return false;
                 }
-                //check if there's another troll in the line opposite to where the current piece wants to go
-                boardItem=board[this.cooridnateX+runner*rowDirection*-1][this.cooridnateY+runner*colDirection*-1];
-                if(boardItem !== "" && boardItem.className() === TrollPieceClass.staticClassName())
-                {
-                    hadTrollShove=true;
-                }
-                //else the troll line has ended.
-                else
+                //if the the runner for troll line check ran out of bound treat it as line automatically being broken
+                if((this.cooridnateX+runner*rowDirection*-1<0) || (this.cooridnateX+runner*rowDirection*-1>=SIDE_LENGTH) || 
+                    (this.cooridnateY+runner*colDirection*-1<0) || this.cooridnateY+runner*colDirection*-1>=SIDE_LENGTH)
                 {
                     hadTrollShove=false;
+                }
+                else
+                {
+                    //check if there's another troll in the line opposite to where the current piece wants to go
+                    boardItem=board[this.cooridnateX+runner*rowDirection*-1][this.cooridnateY+runner*colDirection*-1];
+                    if(boardItem !== "" && boardItem.className() === TrollPieceClass.staticClassName())
+                    {
+                        hadTrollShove=true;
+                    }
+                    //else the troll line has ended.
+                    else
+                    {
+                        hadTrollShove=false;
+                    }
                 }
             }
         }

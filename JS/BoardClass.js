@@ -155,6 +155,10 @@ export class BoardClass
             {
                 return boardPiece.isValidMove(newLocationX,newLocationY,this.board);
             }
+            else if(boardPiece.className()===DwarfPieceClass.staticClassName())
+            {
+                return boardPiece.isValidMove(newLocationX,newLocationY,this.board);
+            }
             //TODO calculate if move is valid according to piece logic
             else if(!(this.board[newLocationX][newLocationY]=== undefined || this.board[newLocationX][newLocationY] === ""))
             {
@@ -184,10 +188,8 @@ export class BoardClass
         }
         else if(boardPiece.className() == DwarfPieceClass.staticClassName())
         {
-            this.board[newLocationX][newLocationY]=this.board[oldLocationX][oldLocationY];
-            this.board[newLocationX][newLocationY].cooridnateX=newLocationX;
-            this.board[newLocationX][newLocationY].cooridnateY=newLocationY;
-            this.board[oldLocationX][oldLocationY]="";
+            //move the piece and add the points of the captured item to the score
+            this.totalDwarfPoints+=boardPiece.move(newLocationX,newLocationY,this.board)*TROLL_BASE_VALUE;
         }
     }
 

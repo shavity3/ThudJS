@@ -14,11 +14,6 @@ export class ThudStonePieceClass extends BoardPieceClass
         return "S";
     }
 
-    isValidMove(newXCord,newYCord)
-    {
-        return false;
-    }
-
     static staticClassName()
     {
         return "ThudStonePieceClass";
