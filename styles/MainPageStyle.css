@@ -1,0 +1,31 @@
+td {
+ height: 50px;
+ width: 50px;
+ min-height: 50px;
+ min-width: 50px;
+ vertical-align: middle;
+ text-align: center;
+
+ border-style: hidden;
+ border-collapse: collapse;
+}
+
+.selectedCell{
+    background-color: red;
+    border-collapse: separate;
+    border: 3px;
+    border-style: solid;
+}
+
+.plainCell {
+    background-color: unset;
+    border-collapse: separate;
+    border: 3px;
+    border-style: solid;
+   }
+
+.deadCell {
+    background-color: unset;
+    border-style: hidden;
+    border-collapse: collapse;
+}
