@@ -2,6 +2,7 @@
 
 import { DwarfPieceClass } from './DwarfPiece.js';
 import { TrollPieceClass } from './TrollPiece.js';
+import { BoardClass,SIDE_LENGTH } from './BoardClass.js';
 
 export function test()
 {
@@ -17,79 +18,15 @@ let thudBoard = [];
 let selectedCell = undefined;
 let turnCount=0;
 
-export function repopulateBoard()
+function repopulateBoard()
 {
-    createBoardObj();
+    thudBoard = new BoardClass();
+    //createBoardObj();
     //repopulateBoardWithDwarves();
     //repopulateBoardWithTrolls();
 
     rePaintBoard();
     turnCount=0;
-}
-
-function createBoardObj()
-{
-    thudBoard = [];
-    let boardTable = document.getElementById("tableBoard");
-    let rowsLength = boardTable.rows.length;
-    let boardRow;
-    let cellItem;
-    let tempCells
-    let columnLength;
-    for(let rowRunner=0;rowRunner<rowsLength;rowRunner++)
-    {
-        boardRow = [];
-        tempCells= boardTable.rows[rowRunner];
-        columnLength=tempCells.cells.length;
-        for(let cellRunner=0;cellRunner<columnLength;cellRunner++)
-        {
-            cellItem = new BoardCell(rowRunner,cellRunner,"");
-            boardRow.push(cellItem);
-        }
-        thudBoard.push(boardRow);
-    }
-
-    removeEdgesFromBoard();
-}
-
-//remove a triangle of REMOVAL_LENGTH width and height from each corner of the board
-function removeEdgesFromBoard()
-{
-    //removes the top left edge
-    for(let rowRunner=0;rowRunner<REMOVAL_LENGTH;rowRunner++)
-    {
-        for(let columnRunner=0;columnRunner+rowRunner<REMOVAL_LENGTH;columnRunner++)
-        {
-            thudBoard[rowRunner][columnRunner]=undefined;
-        }
-    }
-
-    //removes the top right edge
-    for(let rowRunner=0;rowRunner<REMOVAL_LENGTH;rowRunner++)
-    {
-        for(let columnRunner=MAX_COLUMN_LENGTH-REMOVAL_LENGTH+rowRunner;columnRunner<MAX_COLUMN_LENGTH;columnRunner++)
-        {
-            thudBoard[rowRunner][columnRunner]=undefined;
-        }
-    }
-
-    //removes the bottom left edge
-    for(let rowRunner=MAX_ROW_LENGTH-REMOVAL_LENGTH;rowRunner<MAX_ROW_LENGTH;rowRunner++)
-    {
-        for(let columnRunner=0;columnRunner<rowRunner-(MAX_ROW_LENGTH-REMOVAL_LENGTH)+1;columnRunner++)
-        {
-            thudBoard[rowRunner][columnRunner]=undefined;
-        }
-    }
-
-    //removes the bottom right edge
-    for(let rowRunner=MAX_ROW_LENGTH-REMOVAL_LENGTH;rowRunner<MAX_ROW_LENGTH;rowRunner++)
-    {
-        for(let columnRunner=MAX_COLUMN_LENGTH-REMOVAL_LENGTH+(MAX_ROW_LENGTH-rowRunner-1);columnRunner<MAX_COLUMN_LENGTH;columnRunner++)
-        {
-            thudBoard[rowRunner][columnRunner]=undefined;
-        }
-    }
 }
 
 function repopulateBoardWithDwarves()
@@ -113,60 +50,42 @@ function repopulateBoardWithDwarves()
     }
 }
 
-function repopulateBoardWithTrolls()
-{
-    let rowsLength =thudBoard.length;
-    let tempCellsLength;
-
-    //if table rows are even numbered exit with error
-    if(rowsLength % 2 == 0)
-    {
-        alert("Board is incompatible.")
-        return;
-    }
-
-    //temporarily only put troll in the center
-    let middleRow=Math.ceil(rowsLength/2);
-    let tempCells = thudBoard[middleRow];
-    tempCellsLength=tempCells.length;
-    //if table columns are even numbered exit with error
-    if(tempCellsLength % 2 == 0)
-    {
-        alert("Board is incompatible.")
-        return;
-    }
-    let middleColumn=Math.ceil(tempCellsLength/2);
-    thudBoard[middleRow-1][middleColumn-1].value = new TrollPieceClass(middleRow-1,middleColumn-1);//TROLLOBJECT;
-}
-
 function rePaintBoard()
 {
     let boardTable = document.getElementById("tableBoard");
-    let rowsLength = boardTable.rows.length;
 
-    let tempCells
-    let columnLength;
-    for(let rowRunner=0;rowRunner<rowsLength;rowRunner++)
+    for(let rowRunner=0;rowRunner<SIDE_LENGTH;rowRunner++)
     {
-        tempCells= boardTable.rows[rowRunner];
-        columnLength=tempCells.cells.length;
-        for(let cellRunner=0;cellRunner<columnLength;cellRunner++)
+        for(let cellRunner=0;cellRunner<SIDE_LENGTH;cellRunner++)
         {
-            //if it's one of the removed edges
-            if(thudBoard[rowRunner][cellRunner]===undefined)
-            {
-                boardTable.rows[rowRunner].cells[cellRunner].innerHTML="";
-                boardTable.rows[rowRunner].cells[cellRunner].className="deadCell";
-            }
-            else
-            {
-                boardTable.rows[rowRunner].cells[cellRunner].innerHTML=thudBoard[rowRunner][cellRunner].toString();
-                boardTable.rows[rowRunner].cells[cellRunner].className="plainCell";
-            }
+            paintCell(rowRunner,cellRunner);
         }
     }
+}
 
-    //boardTable.rows[1].cells[1].className="deadCell";
+function paintCell(xCoordinate,yCoordinate)
+{
+    let boardTable = document.getElementById("tableBoard");//if it's one of the removed edges
+    if(thudBoard.isValidLocation(xCoordinate,yCoordinate))
+    {
+        //if the cell is empty
+        if(thudBoard.board[xCoordinate][yCoordinate] === "")
+        {
+            boardTable.rows[xCoordinate].cells[yCoordinate].innerHTML="";
+            boardTable.rows[xCoordinate].cells[yCoordinate].className="plainCell";
+        }
+        //else draw the object
+        else
+        {
+            boardTable.rows[xCoordinate].cells[yCoordinate].innerHTML=thudBoard.board[xCoordinate][yCoordinate].toString();
+            boardTable.rows[xCoordinate].cells[yCoordinate].className="plainCell";
+        }
+    }
+    else
+    {
+        boardTable.rows[xCoordinate].cells[yCoordinate].innerHTML="";
+        boardTable.rows[xCoordinate].cells[yCoordinate].className="deadCell";
+    }
 }
 
 function tableClick(eventObj)
@@ -265,10 +184,10 @@ let cellToAdd;
 let tBodyToAdd=document.createElement("tbody");
 let boardToChange=document.getElementById("tableBoard");
 
-for(let rowRunner=0;rowRunner<MAX_ROW_LENGTH;rowRunner++)
+for(let rowRunner=0;rowRunner<SIDE_LENGTH;rowRunner++)
 {
     rowToAdd=document.createElement("tr");
-    for(let columnRunner=0;columnRunner<MAX_COLUMN_LENGTH;columnRunner++)
+    for(let columnRunner=0;columnRunner<SIDE_LENGTH;columnRunner++)
     {
         cellToAdd=document.createElement("td");
 
