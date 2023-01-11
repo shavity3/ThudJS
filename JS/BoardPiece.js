@@ -1,5 +1,7 @@
 "use strict";
 
+//the base class for all the board items has two proprties, xCoordinate and yCoordinate
+
 export class BoardPieceClass
 {
     constructor (cooridnateX,cooridnateY)

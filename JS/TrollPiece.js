@@ -4,6 +4,11 @@ import {BoardPieceClass} from './BoardPiece.js';
 import { DwarfPieceClass } from './DwarfPiece.js';
 import { SIDE_LENGTH } from './BoardDefinitionClass.js';
 
+//extends the BoardPieceClass class
+//trolls move one square orthogonaly or diagonaly (like a chess king), 
+//  when a troll moves to a new location he will capture all surrinding dwarf pieces that are one square away from it orthogonaly or diagonaly.
+//trolls can be shoved to move further by having a line of trolls opposite to the new location piece, the line needs to be as long as the distance from the new location,
+//  trolls can only be shoved if the new location will cause dwarves to be captured
 export class TrollPieceClass extends BoardPieceClass
 {
     constructor(cooridnateX,cooridnateY)
@@ -16,7 +21,8 @@ export class TrollPieceClass extends BoardPieceClass
         return "T";
     }
 
-    //trolls are only allowed to move one square
+    //a boolean method that returns if it's valid for the piece to move to a new location.
+    //this function recives the new location coordinates and the board it is on.
     isValidMove(newXCord,newYCord,board)
     {
         let absRowDistance=Math.abs(newXCord-this.cooridnateX);
@@ -44,6 +50,7 @@ export class TrollPieceClass extends BoardPieceClass
             {
                 return false;
             }
+            //check to see if the new location will have at least one dwarf to capture otherwise immediatly end
             else if(!TrollPieceClass.#willAtLeastCapture(newXCord,newYCord,board))
             {
                 //if the shoving won't end up capturing at least one dwarf it is illegal
@@ -58,6 +65,8 @@ export class TrollPieceClass extends BoardPieceClass
     }
     
 
+    //move the troll to the new location on the board, if there was a dwarf pieces nearby capture them
+    //this function assumes isValidMove was check beforehand
     move(newXCord,newYCord,board)
     {
         let capturedPieces=0;
@@ -148,6 +157,8 @@ export class TrollPieceClass extends BoardPieceClass
         return willCapture;
     }
 
+    //this private function checks if the troll can move to the given location by shoving.
+    //get the coordinate of the new location, the board itself
     #shoveIsPossible(newXCord,newYCord,board)
     {
         //get absloute distance

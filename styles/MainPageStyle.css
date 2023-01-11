@@ -1,18 +1,23 @@
-/*
-TODO: Fix the cell border
-*/
-
-
 .divTurnText{
     width: 100%;
     text-align: center;
     margin-bottom: 30px;
 }
 
-.spanTurnText{
+.spanTurnText, .spanTrollPlayerText, .spanDwarfPlayerText{
     text-align: center;
     font-weight: bold;
     font-size: larger;
+}
+
+.spanTrollPlayerText{
+   color: red;
+
+}
+
+.spanDwarfPlayerText{
+   color: blue;
+
 }
 
 .tableBoardContainer{
@@ -46,17 +51,6 @@ td {
  border-collapse: collapse;
 }
 
-.tdButton{
-    height: unset;
-    width: unset;
-}
-
-.tdButton:nth-child(2){
-    padding-left: 30px;
-    height: unset;
-    width: unset;
-}
-
 .selectedCell{
     background-color: red;
     border-collapse: separate;
@@ -77,26 +71,28 @@ td {
     border-collapse: collapse;
 }
 
-.spanBold{
-    font-weight: bold;
-}
-
-.spanPlayerNameText, .spanTrollPLayerText, .spanDwarfPLayerText{
-    font-weight: bold;
-    font-size: larger;
-}
-
-.spanTrollPLayerText{
-   color: red;
-
-}
-
-.spanDwarfPLayerText{
-   color: blue;
-
+.tdButton{
+    height: unset;
+    width: unset;
 }
 
 button{
     font-size: large;
     width: 130px;
+}
+
+.divGameRules{
+    width: 80%;
+    margin: auto;
+}
+.divGameRules .h1{
+    text-align: center;
+}
+
+.ruleStyle{
+    text-align: left;
+}
+
+.spanBold{
+    font-weight: bold;
 }

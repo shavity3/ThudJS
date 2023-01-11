@@ -8,7 +8,7 @@ import { SIDE_LENGTH,REMOVAL_LENGTH } from './BoardDefinitionClass.js';
 //the board is defined as a square that has a triangle at the length and height of REMOVAL_LENGTH removed from each corner
 export class BoardClass
 {
-    //this class contains the board as a matrix array and the thudstone object as a quick reference to where the thud stone sits
+    //this class contains the board as a matrix array, the thudstone object as a quick reference to where the thud stone sits and how many dwarve and troll pieces are still in play.
     constructor()
     {
         this.board=this.#createBoardObj();
@@ -22,6 +22,7 @@ export class BoardClass
     }
 
 
+    //inits the board
     #createBoardObj()
     {
         let thudBoard = [];
@@ -120,8 +121,10 @@ export class BoardClass
 
     }
 
+    //boolean functions that checks if the given location has a board piece that can be moved
     hasMovablePiece(xCoordinate,yCoordinate)
     {
+        //empty spots can't be moved
         if(this.board[xCoordinate][yCoordinate]=== undefined || this.board[xCoordinate][yCoordinate] === "")
         {
             return false;
@@ -129,16 +132,19 @@ export class BoardClass
         else
         {
             let boardPiece=this.board[xCoordinate][yCoordinate];
-            //thud stones can't be moved
-            if(boardPiece.className() === ThudStonePieceClass.staticClassName())
+            //if the piece is eithe a dwarf or a troll return true else false;
+            if(boardPiece.className() === DwarfPieceClass.staticClassName() || boardPiece.className() === TrollPieceClass.staticClassName())
+            {
+                return true;
+            }
+            else
             {
                 return false;
             }
-            //else
-            return true;
         }
     }
 
+    //private boolean method that check location given contains a piece that can be moved to the new location 
     #isValidMove(oldLocationX,oldLocationY,newLocationX,newLocationY)
     {
         let boardPiece;
@@ -159,18 +165,15 @@ export class BoardClass
             {
                 return boardPiece.isValidMove(newLocationX,newLocationY,this.board);
             }
-            //TODO calculate if move is valid according to piece logic
-            else if(!(this.board[newLocationX][newLocationY]=== undefined || this.board[newLocationX][newLocationY] === ""))
-            {
-                return false;
-            }
+            //else somehow a non movalbe piece was selected?
             else
             {
-                return true;
+                return false;
             }
         }
     }
 
+    //private method that moves the piece from the old location to the new one
     #move(oldLocationX,oldLocationY,newLocationX,newLocationY)
     {
         let boardPiece=this.board[oldLocationX][oldLocationY];
@@ -186,6 +189,7 @@ export class BoardClass
         }
     }
 
+    //boolean function that tries moving the piece at the old location to the new one and returns true if sit succedded and false if it failed
     tryMove(oldLocationX,oldLocationY,newLocationX,newLocationY)
     {
         if(!this.#isValidMove(oldLocationX,oldLocationY,newLocationX,newLocationY))

@@ -4,6 +4,11 @@ import { BoardPieceClass } from './BoardPiece.js';
 import { TrollPieceClass } from './TrollPiece.js';
 import { SIDE_LENGTH } from './BoardDefinitionClass.js';
 
+//extends the BoardPieceClass class
+//dwarves move either by straight, orthogonal or diagonal, unoccupied lines (like a chess queen); and need to be hurled if the target location has a troll piece in it.
+//hurling is defined by having a line of dwarves in the opposite direction of the move that is at least the number of square to the new location 
+//  (a dwarf always counts as at least a line of 1), you can only hurl if the new loation has a troll piece on it.
+
 export class DwarfPieceClass extends BoardPieceClass
 {
     constructor(cooridnateX,cooridnateY)
@@ -11,11 +16,14 @@ export class DwarfPieceClass extends BoardPieceClass
         super(cooridnateX,cooridnateY)
     }
 
+    //return the strin value of the piece ("D")
     toString()
     {
         return "D";
     }
 
+    //a boolean method that returns if it's valid for the piece to move to a new location.
+    //this function recives the new location coordinates and the board it is on.
     isValidMove(newXCord,newYCord,board)
     {
         let absRowDistance=Math.abs(newXCord-this.cooridnateX);
@@ -28,11 +36,12 @@ export class DwarfPieceClass extends BoardPieceClass
         //check if valid movement type, dwarf can move in unlimited orthogonal or diagonal lines
         else if (absRowDistance === 0 || absColumnDistance === 0 || (absRowDistance === absColumnDistance))
         {
-            //if the square is unoccupied treat it as simple movement
+            //if the location is unoccupied treat it as simple movement
             if (board[newXCord][newYCord] === "")
             {
                 return this.#moveIsPossible(newXCord,newYCord,board,false);
             }
+            //else of the location is occupied by a troll piece check if the dwarf can be hurled
             else if(board[newXCord][newYCord].className() === TrollPieceClass.staticClassName())
             {
                 return this.#moveIsPossible(newXCord,newYCord,board,true);
@@ -50,7 +59,8 @@ export class DwarfPieceClass extends BoardPieceClass
         }
     }
 
-    //get the coordinate of the new location, the board itself and wther we should check that the dwarf is hurled
+    //this private function checks if the dwarf can move to the given location, either by hurling or normal movment.
+    //get the coordinate of the new location, the board itself and whether we should check that the dwarf should be hurled
     #moveIsPossible(newXCord,newYCord,board,isHurl)
     {
         //get absloute distance
@@ -108,7 +118,6 @@ export class DwarfPieceClass extends BoardPieceClass
             }
             else
             {
-                //check if the spaces to move are empty
                 boardItem=board[this.cooridnateX+runner*rowDirection][this.cooridnateY+runner*colDirection];
                 //if the dwarf is hurled
                 if(isHurl)
@@ -151,6 +160,8 @@ export class DwarfPieceClass extends BoardPieceClass
         return true;
     }
 
+    //move the dwarf to the new location on the board, if there was a troll piece there capture it
+    //this function assumes isValidMove was check beforehand
     move(newXCord,newYCord,board)
     {
         let capturedPieces=0;

@@ -20,20 +20,20 @@ let thudBoard = [];
 let selectedCell = undefined;
 let turnCount=0;
 
+//inits the game board
 function repopulateBoard()
 {
     thudBoard = new BoardClass();
-    //createBoardObj();
-    //repopulateBoardWithDwarves();
-    //repopulateBoardWithTrolls();
 
+    //paints the html board.
     rePaintBoard();
+    //inits the turn count and presentation
     turnCount=0;
-    document.getElementById("turnTextSpan").innerHTML=TURN_TEXT_START+DWARF_PLAYER_TEXT+TURN_TEXT_END;
-    document.getElementById("spanDwarfPlayerText").innerHTML=DWARF_PLAYER_TEXT;
-    document.getElementById("spanTrollPlayerText").innerHTML="";
+    document.getElementById("spanCurrentPlayer").className="spanDwarfPlayerText";
+    document.getElementById("spanCurrentPlayer").innerHTML=DWARF_PLAYER_TEXT;
 }
 
+//paint all the cells in the html board object
 function rePaintBoard()
 {
     let boardTable = document.getElementById("tableBoard");
@@ -47,9 +47,11 @@ function rePaintBoard()
     }
 }
 
+//paint a specific cell in the html object according to the given coordinates
 function paintCell(xCoordinate,yCoordinate)
 {
-    let boardTable = document.getElementById("tableBoard");//if it's one of the removed edges
+    let boardTable = document.getElementById("tableBoard");
+    //if it's not one of the removed edges
     if(thudBoard.isValidLocation(xCoordinate,yCoordinate))
     {
         //if the cell is empty
@@ -72,6 +74,8 @@ function paintCell(xCoordinate,yCoordinate)
     }
 }
 
+//table click has two modes, first no item is selected than it selects one item and paints its background
+// the second is trying to move the object to the chosen location or it deselects item if the same location was clicked twice
 function tableClick(eventObj)
 {
     let target  = eventObj.target;
@@ -80,10 +84,13 @@ function tableClick(eventObj)
     let columnNumber=cell.cellIndex;
     let rowNumber=cell.parentNode.rowIndex;
 
+    //if there is no chosen cell
     if(selectedCell === undefined)
     {
+        //if a valid location was chosen
         if(thudBoard.isValidLocation(rowNumber,columnNumber))
         {
+            //if the location has a valid piece that can be moved
             if(thudBoard.hasMovablePiece(rowNumber,columnNumber))
             {
                 let boardPiece = thudBoard.board[rowNumber][columnNumber];
@@ -97,12 +104,14 @@ function tableClick(eventObj)
                 {
                     return;
                 }
+                //otherwise select the new cell
                 selectedCell=new BoardCell(rowNumber,columnNumber);
                 //also change the border color so the chosen cell would be highlighted
                 cell.className="selectedCell";
             }
             else
             {
+                //thudstone was chosen
                 return;
             }
         }
@@ -115,9 +124,10 @@ function tableClick(eventObj)
     else
     {
         let boardTable = document.getElementById("tableBoard");
+        //if the same cell was selected
         if(columnNumber == selectedCell.columnNumber && rowNumber==selectedCell.rowNumber)
         {
-            //the user chooses the same cell twice and deselect the cell
+            //the user chose the same cell twice and deselect the cell
             boardTable.rows[selectedCell.rowNumber].cells[selectedCell.columnNumber].className="plainCell";
             selectedCell=undefined;
         }
@@ -125,11 +135,11 @@ function tableClick(eventObj)
         else if(thudBoard.tryMove(selectedCell.rowNumber,selectedCell.columnNumber,rowNumber,columnNumber))
         {
             //if it succedded
-            //paintCell(selectedCell.rowNumber,selectedCell.columnNumber);
-            //paintCell(rowNumber,columnNumber);
 
+            //repaint the board
             rePaintBoard();
 
+            //unselect the cell
             selectedCell=undefined;
 
             //change the player turn
@@ -137,28 +147,28 @@ function tableClick(eventObj)
             //if it is dwarf turn 
             if(turnCount%2 == 0)
             {
-                document.getElementById("turnTextSpan").innerHTML=TURN_TEXT_START+DWARF_PLAYER_TEXT+TURN_TEXT_END;
-                document.getElementById("spanDwarfPlayerText").innerHTML=DWARF_PLAYER_TEXT;
-                document.getElementById("spanTrollPlayerText").innerHTML="";
+                document.getElementById("spanCurrentPlayer").className="spanDwarfPlayerText";
+                document.getElementById("spanCurrentPlayer").innerHTML=DWARF_PLAYER_TEXT;
             }
+            //else it is a troll turn
             else
             {
-                document.getElementById("turnTextSpan").innerHTML=TURN_TEXT_START+TROLL_PLAYER_TEXT+TURN_TEXT_END;
-                document.getElementById("spanDwarfPlayerText").innerHTML="";
-                document.getElementById("spanTrollPlayerText").innerHTML=TROLL_PLAYER_TEXT;
+                document.getElementById("spanCurrentPlayer").className="spanTrollPlayerText";
+                document.getElementById("spanCurrentPlayer").innerHTML=TROLL_PLAYER_TEXT;
             }
         }
         //else it failed
-        else {
+        else 
+        {
             //paint an X for a while on the invalid cell
             let cellItem = boardTable.rows[rowNumber].cells[columnNumber];
             paintInvalid(cellItem)
-
         }
 
     }
 }
 
+//paints a 'X' for small while on a given cell
 async function paintInvalid(boardCellItem)
 {
     let originalText=boardCellItem.innerHTML;
@@ -176,6 +186,7 @@ async function paintInvalid(boardCellItem)
     boardCellItem.innerHTML = originalText;
 }
 
+//this function ends the game, totalling the points, alerting who won and restarting the board
 function endGame()
 {
     let trollScore=thudBoard.numberOfTrolls*TROLL_BASE_VALUE;
@@ -185,23 +196,22 @@ function endGame()
     //troll player won
     if(trollScore>dwarfScore)
     {
-        alert("The Troll player won the game with " + absScoreValue + " points.");
+        alert("The Troll player won the game with a net of " + absScoreValue + " points.");
     }
     //dwarf player won
     else if(dwarfScore>trollScore)
     {
-        alert("The Dwarf player won the game with " + absScoreValue + " points.");
+        alert("The Dwarf player won the game with a net of " + absScoreValue + " points.");
     }
     //there was no winner
     else
     {
         alert("A tie, neither player wins.");
     }
-
-    //TODO: end game board cleaning
     repopulateBoard();
 }
 
+//a small class to hold the chosen cell
 class BoardCell
 {
     constructor (rowNumber,columnNumber)
@@ -234,6 +244,7 @@ boardToChange.appendChild(tBodyToAdd);
 
 repopulateBoard();
 
+//loading the events for the HTML page
 document.getElementById("resetBoard").addEventListener("click",repopulateBoard);
 document.getElementById("buttonEndGame").addEventListener("click",endGame);
 document.getElementById("tableBoard").addEventListener("click",tableClick);
