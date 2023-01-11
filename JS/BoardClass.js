@@ -3,7 +3,7 @@
 import { DwarfPieceClass } from './DwarfPiece.js';
 import { TrollPieceClass } from './TrollPiece.js';
 import { ThudStonePieceClass } from './ThudStonePiece.js';
-import { SIDE_LENGTH,REMOVAL_LENGTH,TROLL_BASE_VALUE,DWARF_BASE_VALUE } from './BoardDefinitionClass.js';
+import { SIDE_LENGTH,REMOVAL_LENGTH } from './BoardDefinitionClass.js';
 
 //the board is defined as a square that has a triangle at the length and height of REMOVAL_LENGTH removed from each corner
 export class BoardClass
@@ -14,8 +14,8 @@ export class BoardClass
         this.board=this.#createBoardObj();
         this.thudStone=this.#createThudStone();
 
-        this.totalDwarfPoints=0;
-        this.totalTrollPoints=0;
+        this.numberofDwarves=0;
+        this.numberOfTrolls=0;
 
         this.#repopulateBoardWithTrolls();
         this.#repopulateBoardWithDwarves();
@@ -55,7 +55,7 @@ export class BoardClass
     //all trolls starting location should be surrounding the Thud stone
     #repopulateBoardWithTrolls()
     {
-        let numberOfTrolls=0;
+        this.numberOfTrolls=0;
         let thudStoneCordX=this.thudStone.cooridnateX;
         let thudStoneCordY=this.thudStone.cooridnateY;
         for(let rowRunner=thudStoneCordX-1;rowRunner<=thudStoneCordX+1;rowRunner++)
@@ -66,7 +66,7 @@ export class BoardClass
                 if(columnRunner!=thudStoneCordY || rowRunner !=thudStoneCordX)
                 {
                     this.board[rowRunner][columnRunner] = new TrollPieceClass(rowRunner,columnRunner);
-                    numberOfTrolls++;
+                    this.numberOfTrolls++;
                 }
             }
         }
@@ -76,7 +76,7 @@ export class BoardClass
     //plus 8 more to create point parity
     #repopulateBoardWithDwarves()
     {
-        let numberofDwarves=0;
+        this.numberofDwarves=0;
         let absDistance;
         for(let rowRunner=0;rowRunner<SIDE_LENGTH;rowRunner++)
         {
@@ -87,13 +87,13 @@ export class BoardClass
                 if(absDistance==SIDE_LENGTH-REMOVAL_LENGTH-1)
                 {
                     this.board[rowRunner][columnRunner]=new DwarfPieceClass(rowRunner,columnRunner);
-                    numberofDwarves++;
+                    this.numberofDwarves++;
                 }
                 //else if the distance is 8 and at the edge of the array
                 else if(absDistance==SIDE_LENGTH-REMOVAL_LENGTH-2 && (rowRunner==0 || rowRunner == (SIDE_LENGTH-1) || columnRunner == 0 || columnRunner == (SIDE_LENGTH-1) ))
                 {
                     this.board[rowRunner][columnRunner]=new DwarfPieceClass(rowRunner,columnRunner);
-                    numberofDwarves++
+                    this.numberofDwarves++
                 }
             }
         }
@@ -103,7 +103,7 @@ export class BoardClass
     isValidLocation(xCoordinate,yCoordinate)
     {
         //if the location is outside the bound of the array
-        if(xCoordinate<0 || xCoordinate>SIDE_LENGTH || yCoordinate<0 || yCoordinate>SIDE_LENGTH)
+        if(xCoordinate<0 || xCoordinate>=SIDE_LENGTH || yCoordinate<0 || yCoordinate>=SIDE_LENGTH)
         {
             return false;
         }
@@ -173,23 +173,16 @@ export class BoardClass
 
     #move(oldLocationX,oldLocationY,newLocationX,newLocationY)
     {
-        /*
-        this.board[newLocationX][newLocationY]=this.board[oldLocationX][oldLocationY];
-        this.board[newLocationX][newLocationY].cooridnateX=newLocationX;
-        this.board[newLocationX][newLocationY].cooridnateY=newLocationY;
-        this.board[oldLocationX][oldLocationY]="";
-        */
-
         let boardPiece=this.board[oldLocationX][oldLocationY];
         if(boardPiece.className() == TrollPieceClass.staticClassName())
         {
             //move the piece and add the points of the captured item to the score
-            this.totalTrollPoints+=boardPiece.move(newLocationX,newLocationY,this.board)*DWARF_BASE_VALUE;
+            this.numberofDwarves-=boardPiece.move(newLocationX,newLocationY,this.board);
         }
         else if(boardPiece.className() == DwarfPieceClass.staticClassName())
         {
             //move the piece and add the points of the captured item to the score
-            this.totalDwarfPoints+=boardPiece.move(newLocationX,newLocationY,this.board)*TROLL_BASE_VALUE;
+            this.numberOfTrolls-=boardPiece.move(newLocationX,newLocationY,this.board);
         }
     }
 

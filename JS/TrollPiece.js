@@ -62,11 +62,18 @@ export class TrollPieceClass extends BoardPieceClass
     {
         let capturedPieces=0;
         let cellItem;
+        //check to see if there's any dwarf pieces to capture and if so capture them
         for(let rowRunner=newXCord-1;rowRunner<=newXCord+1 && rowRunner < SIDE_LENGTH ;rowRunner++)
         {
             for(let colRunner=newYCord-1;colRunner<=newYCord+1 && colRunner < SIDE_LENGTH;colRunner++)
             {
+                //skip checking for same square
                 if(rowRunner == newXCord && colRunner === newYCord)
+                {
+                    //skip
+                }
+                //if the check is out of bounds
+                else if(rowRunner<0 || rowRunner>= SIDE_LENGTH || colRunner< 0 || colRunner >=SIDE_LENGTH)
                 {
                     //skip
                 }
@@ -89,6 +96,7 @@ export class TrollPieceClass extends BoardPieceClass
             }
         }
 
+        //changes the piece location to the new location
         board[this.cooridnateX][this.cooridnateY]="";
 
         this.cooridnateX=newXCord;
@@ -96,6 +104,7 @@ export class TrollPieceClass extends BoardPieceClass
 
         board[newXCord][newYCord]=this;
 
+        //return the number of the captured pieces
         return capturedPieces;
     }
 
@@ -108,7 +117,13 @@ export class TrollPieceClass extends BoardPieceClass
         {
             for(let colRunner=colNum-1;colRunner<=colNum+1 && colRunner < SIDE_LENGTH;colRunner++)
             {
+                //if the location is the same as the future piece skip it
                 if(rowRunner == rowNum && colRunner === colNum)
+                {
+                    //skip
+                }
+                //if the check is out of bounds
+                else if(rowRunner<0 || rowRunner>= SIDE_LENGTH || colRunner< 0 || colRunner >=SIDE_LENGTH)
                 {
                     //skip
                 }
